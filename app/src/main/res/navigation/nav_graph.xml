@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/hostFragment">
+
+    <fragment
+        android:id="@+id/todayFragment"
+        android:name="raphel.bookie.ui.fragments.TodayFragment"
+        android:label="fragment_today"
+        tools:layout="@layout/fragment_today" />
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="raphel.bookie.ui.fragments.ListFragment"
+        android:label="fragment_list"
+        tools:layout="@layout/fragment_list" />
+    <fragment
+        android:id="@+id/listItemFragment"
+        android:name="raphel.bookie.ui.fragments.ListItemFragment"
+        android:label="fragment_list_item"
+        tools:layout="@layout/fragment_list_item" >
+        <action
+            android:id="@+id/action_listItemFragment_to_hostFragment"
+            app:destination="@id/hostFragment"
+            app:popUpTo="@id/hostFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/newBookFragment"
+        android:name="raphel.bookie.ui.fragments.NewBookFragment"
+        android:label="fragment_new_book"
+        tools:layout="@layout/fragment_new_book" >
+        <action
+            android:id="@+id/action_newBookFragment_to_hostFragment"
+            app:destination="@id/hostFragment"
+            app:popUpTo="@id/hostFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/hostFragment"
+        android:name="raphel.bookie.ui.fragments.HostFragment"
+        android:label="fragment_host"
+        tools:layout="@layout/fragment_host" />
+    <fragment
+        android:id="@+id/newDeadlineFragment"
+        android:name="raphel.bookie.ui.fragments.NewDeadlineFragment"
+        android:label="fragment_new_deadline"
+        tools:layout="@layout/fragment_new_deadline" >
+        <action
+            android:id="@+id/action_newDeadlineFragment_to_listItemFragment"
+            app:destination="@id/listItemFragment"
+            app:popUpTo="@id/listItemFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/targetCompletedFragment"
+        android:name="raphel.bookie.ui.fragments.TargetCompletedFragment"
+        android:label="fragment_target_completed"
+        tools:layout="@layout/fragment_target_completed" >
+        <action
+            android:id="@+id/action_targetCompletedFragment_to_todayFragment"
+            app:destination="@id/todayFragment"
+            app:popUpTo="@id/hostFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/infoFragment"
+        android:name="raphel.bookie.ui.fragments.InfoFragment"
+        android:label="fragment_info"
+        tools:layout="@layout/fragment_info" />
+</navigation>
