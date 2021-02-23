@@ -13,13 +13,13 @@ import java.util.List;
 public interface BookDao {
 
     @Insert
-    void insertAll(Book... books);
+    void insert(Book book);
 
     @Update
-    void updateAll(Book... books);
+    void update(Book book);
 
     @Delete
-    void deleteAll(Book... books);
+    void delete(Book book);
 
     @Query("SELECT * FROM table_book WHERE id=(SELECT max(id) FROM table_book);")
     Book getLast();

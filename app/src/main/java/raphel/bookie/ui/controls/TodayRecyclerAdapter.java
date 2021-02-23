@@ -37,7 +37,8 @@ public class TodayRecyclerAdapter extends RecyclerView.Adapter<TodayRecyclerAdap
 
         holder.binding.itmTargetTitle.setText(session.book.title);
         holder.setData(session);
-        holder.binding.itmTargetContent.setText(String.valueOf(session.dailyTarget.pageToReach));
+        String content = "PAGE: " + session.dailyTarget.pageToReach;
+        holder.binding.itmTargetContent.setText(content);
         holder.updateVisual();
 
         holder.binding.itmTargetSwitch.setOnClickListener((View) -> {

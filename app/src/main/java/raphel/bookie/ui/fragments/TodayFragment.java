@@ -71,8 +71,7 @@ public class TodayFragment extends Fragment implements TodayRecyclerAdapter.Item
                     String pageText = binding.targetCompltdInputNmbr.getText().toString();
                     if (pageText.isEmpty()) return;
                     int page = Integer.parseInt(pageText);
-                    if (page <= holder.getData().book.userPosition
-                            && page > holder.getData().book.length) return;
+                    if (page <= 0 || page > holder.getData().book.length) return;
 
                     holder.getData().dailyTarget.pageReached = page;
                     viewModel.updateDailyTarget(holder.getData());
@@ -82,9 +81,7 @@ public class TodayFragment extends Fragment implements TodayRecyclerAdapter.Item
 
                 popupWindow.setElevation(20);
                 popupWindow.showAtLocation(getView(), Gravity.CENTER, 0, 0);
-                popupWindow.setOnDismissListener(() -> {
-                    holder.updateVisual();
-                });
+                popupWindow.setOnDismissListener(holder::updateVisual);
             });
         }
         else {
@@ -97,7 +94,8 @@ public class TodayFragment extends Fragment implements TodayRecyclerAdapter.Item
     private List<ReadingSession> filter(List<ReadingSession> sessions) {
         List<ReadingSession> filtered = new ArrayList<>();
         for (ReadingSession session : sessions) {
-            if (session.dailyTarget != null) {
+            if (session.dailyTarget != null
+                    && session.dailyTarget.pageToReach != 0) {
                 filtered.add(session);
             }
         }

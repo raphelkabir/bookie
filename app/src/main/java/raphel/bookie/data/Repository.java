@@ -1,10 +1,7 @@
 package raphel.bookie.data;
 
-import androidx.lifecycle.MutableLiveData;
-
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -12,10 +9,8 @@ import java.util.concurrent.Executors;
 
 import raphel.bookie.data.room.Book;
 import raphel.bookie.data.room.BookDao;
-import raphel.bookie.data.room.DailyTarget;
 import raphel.bookie.data.room.DailyTargetDao;
 import raphel.bookie.data.room.Database;
-import raphel.bookie.data.room.Date;
 import raphel.bookie.data.room.Deadline;
 import raphel.bookie.data.room.DeadlineDao;
 import raphel.bookie.data.room.ReadingSession;
@@ -56,59 +51,59 @@ public class Repository {
         sessions.add(session);
 
         executor.execute(() -> {
-            bookDao.insertAll(book);
+            bookDao.insert(book);
+            synchronized (this) {
+                book.id = bookDao.getLast().id;
+            }
         });
     }
     public synchronized void updateBook(@NotNull Book book) {
-        executor.execute(() -> {
-            bookDao.updateAll(book);
-        });
+        executor.execute(() -> bookDao.update(book));
     }
 
     public synchronized void insertDeadline(@NotNull ReadingSession session, @NotNull Deadline deadline) {
+        if (session.deadlines == null) session.deadlines = new ArrayList<>();
         session.deadlines.add(deadline);
         executor.execute(() -> {
-            deadlineDao.insertAll(deadline);
+            deadlineDao.insert(deadline);
+            synchronized (this) {
+                deadline.id = deadlineDao.getLast().id;
+            }
         });
     }
     public synchronized void updateDeadline(@NotNull ReadingSession session, @NotNull Deadline deadline) {
-        executor.execute(() -> {
-            deadlineDao.updateAll(deadline);
-        });
+        executor.execute(() -> deadlineDao.update(deadline));
     }
     public synchronized void deleteDeadline(@NotNull ReadingSession session, @NotNull Deadline deadline) {
         session.deadlines.remove(deadline);
-        executor.execute(() -> {
-            deadlineDao.deleteAll(deadline);
-        });
+        executor.execute(() -> deadlineDao.delete(deadline));
     }
 
     public synchronized void insertDailyTarget(@NotNull ReadingSession session) {
         executor.execute(() -> {
-            dailyTargetDao.insertAll(session.dailyTarget);
+            dailyTargetDao.insert(session.dailyTarget);
+            synchronized (this) {
+                session.dailyTarget.id = dailyTargetDao.getLast().id;
+            }
         });
     }
     public synchronized void updateDailyTarget(@NotNull ReadingSession session) {
-        executor.execute(() -> {
-            dailyTargetDao.updateAll(session.dailyTarget);
-        });
+        executor.execute(() -> dailyTargetDao.update(session.dailyTarget));
     }
     public synchronized void deleteDailyTarget(@NotNull ReadingSession session) {
-        executor.execute(() -> {
-            dailyTargetDao.deleteAll(session.dailyTarget);
-        });
+        executor.execute(() -> dailyTargetDao.delete(session.dailyTarget));
     }
 
     public synchronized void deleteReadingSession(@NotNull ReadingSession session) {
         sessions.remove(session);
 
         executor.execute(() -> {
-            bookDao.deleteAll(session.book);
+            bookDao.delete(session.book);
             if (session.deadlines != null && session.deadlines.size() > 0) {
                 deadlineDao.deleteAllByBook(session.book.id);
             }
             if (session.dailyTarget != null) {
-                dailyTargetDao.deleteAll(session.dailyTarget);
+                dailyTargetDao.delete(session.dailyTarget);
             }
         });
     }

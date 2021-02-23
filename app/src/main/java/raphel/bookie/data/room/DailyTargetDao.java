@@ -12,13 +12,13 @@ import java.util.List;
 public interface DailyTargetDao {
 
     @Insert
-    void insertAll(DailyTarget... dailyTargets);
+    void insert(DailyTarget dailyTarget);
 
     @Update
-    void updateAll(DailyTarget... dailyTargets);
+    void update(DailyTarget dailyTarget);
 
     @Delete
-    void deleteAll(DailyTarget... dailyTargets);
+    void delete(DailyTarget dailyTarget);
 
     @Query("SELECT * FROM table_daily_target WHERE id=(SELECT max(id) FROM table_daily_target);")
     DailyTarget getLast();

@@ -81,13 +81,6 @@ public class MainViewModel extends ViewModel {
     }
 
     private void refreshDailyTarget(@NotNull ReadingSession session) {
-        DailyTarget target = new DailyTarget();
-        target.validFor = new Date();
-        target.validFor.day = today.getDayOfMonth();
-        target.validFor.month = today.getMonthValue();
-        target.validFor.year = today.getYear();
-        target.bookId = session.book.id;
-
         double highestPagesPerDay = 0.0;
         for(Deadline deadline : session.deadlines) {
             LocalDate deadlineDate = LocalDate.of(deadline.date.year,
@@ -103,14 +96,28 @@ public class MainViewModel extends ViewModel {
 
         if (highestPagesPerDay > 0.0
                 && session.book.userPosition + highestPagesPerDay + 1 < session.book.length) highestPagesPerDay += 1.0;
-        target.pageToReach = (int)(session.book.userPosition + highestPagesPerDay);
+        int pageToReach = (int)(session.book.userPosition + highestPagesPerDay);
 
         if (session.dailyTarget != null) {
-            target.id = session.dailyTarget.id;
-            session.dailyTarget = target;
+            session.dailyTarget.validFor = new Date();
+            session.dailyTarget.validFor.day = today.getDayOfMonth();
+            session.dailyTarget.validFor.month = today.getMonthValue();
+            session.dailyTarget.validFor.year = today.getYear();
+
+            session.dailyTarget.bookId = session.book.id;
+            session.dailyTarget.pageToReach = pageToReach;
             repository.updateDailyTarget(session);
         }
         else {
+            DailyTarget target = new DailyTarget();
+
+            target.validFor = new Date();
+            target.validFor.day = today.getDayOfMonth();
+            target.validFor.month = today.getMonthValue();
+            target.validFor.year = today.getYear();
+
+            target.bookId = session.book.id;
+            target.pageToReach = pageToReach;
             session.dailyTarget = target;
             repository.insertDailyTarget(session);
         }

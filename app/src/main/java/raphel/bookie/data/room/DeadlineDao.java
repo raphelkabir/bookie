@@ -12,13 +12,13 @@ import java.util.List;
 public interface DeadlineDao {
 
     @Insert
-    void insertAll(Deadline... deadlines);
+    void insert(Deadline deadline);
 
     @Update
-    void updateAll(Deadline... deadlines);
+    void update(Deadline deadline);
 
     @Delete
-    void deleteAll(Deadline... deadlines);
+    void delete(Deadline deadline);
 
     @Query("SELECT * FROM table_deadline WHERE id=(SELECT max(id) FROM table_deadline);")
     Deadline getLast();
