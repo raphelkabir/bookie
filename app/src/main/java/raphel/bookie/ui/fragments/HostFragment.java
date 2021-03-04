@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
@@ -18,10 +17,11 @@ import raphel.bookie.R;
 import raphel.bookie.databinding.FragmentHostBinding;
 import raphel.bookie.ui.controls.HostPagerAdapter;
 
-public class HostFragment extends Fragment {
+public class HostFragment extends Fragment implements HostNavigation {
 
-    private Holder holder;
+    private NavigationUIListener navigationUIListener;
     private FragmentHostBinding binding;
+    private HostPagerAdapter pagerAdapter;
 
     private int index;
 
@@ -35,19 +35,20 @@ public class HostFragment extends Fragment {
         if (getArguments() != null) {
             index = getArguments().getInt("index");
         }
+
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        binding = FragmentHostBinding.inflate(inflater, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentHostBinding.inflate(inflater);
 
-        Holder holder = new Holder();
-
-        HostPagerAdapter pagerAdapter = new HostPagerAdapter(getActivity());
+        pagerAdapter = new HostPagerAdapter(getActivity());
+        pagerAdapter.setHostNavigation(this);
         binding.mainViewPager.setAdapter(pagerAdapter);
-        binding.mainViewPager.registerOnPageChangeCallback(holder);
-        binding.mainBottomMenu.setOnNavigationItemSelectedListener(holder);
+
+        navigationUIListener = new NavigationUIListener();
+        binding.mainViewPager.registerOnPageChangeCallback(navigationUIListener);
+        binding.mainBottomMenu.setOnNavigationItemSelectedListener(navigationUIListener);
 
         if (index > 0) {
             binding.mainViewPager.setCurrentItem(index, false);
@@ -56,7 +57,21 @@ public class HostFragment extends Fragment {
         return binding.getRoot();
     }
 
-    class Holder extends ViewPager2.OnPageChangeCallback implements BottomNavigationView.OnNavigationItemSelectedListener {
+    @Override
+    public void navigateTo(int index) {
+        if (index < 0 || index > 2) throw new AssertionError("Out of bounds");
+        binding.mainViewPager.setCurrentItem(index);
+        if (index == 2) deselectAll();
+    }
+
+    public void deselectAll() {
+        binding.mainBottomMenu.getMenu().setGroupCheckable(0, true, false);
+        binding.mainBottomMenu.getMenu().getItem(0).setChecked(false);
+        binding.mainBottomMenu.getMenu().getItem(1).setChecked(false);
+        binding.mainBottomMenu.getMenu().setGroupCheckable(0, true, true);
+    }
+
+    class NavigationUIListener extends ViewPager2.OnPageChangeCallback implements BottomNavigationView.OnNavigationItemSelectedListener {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -68,8 +83,6 @@ public class HostFragment extends Fragment {
                 case R.id.menu_books:
                     binding.mainViewPager.setCurrentItem(1);
                     return true;
-                case R.id.menu_info:
-                    binding.mainViewPager.setCurrentItem(2);
             }
             return false;
         }
@@ -85,7 +98,7 @@ public class HostFragment extends Fragment {
                     binding.mainBottomMenu.setSelectedItemId(R.id.menu_books);
                     break;
                 case 2:
-                    binding.mainBottomMenu.setSelectedItemId(R.id.menu_info);
+                    deselectAll();
                     break;
             }
         }

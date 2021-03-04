@@ -2,8 +2,8 @@
     <string name="app_name">Bookie</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="website_authors"><a href="https://www.flaticon.com/">flaticon.com</a></string>
-    <string name="author_kiranshastry"><a href="https://www.flaticon.com/authors/kiranshastry">Kiranshastry</a><br/></string>
-    <string name="author_freepik"><a href="https://www.flaticon.com/authors/freepik">Freepik</a><br/></string>
-    <string name="author_pixel_perfect"><a href="https://www.flaticon.com/authors/pixel-perfect">Pixel perfect</a><br/></string>
+    <string name="author_kiranshastry"><a href="https://www.flaticon.com/authors/kiranshastry">Kiranshastry</a><br /></string>
+    <string name="author_freepik"><a href="https://www.flaticon.com/authors/freepik">Freepik</a><br /></string>
+    <string name="author_pixel_perfect"><a href="https://www.flaticon.com/authors/pixel-perfect">Pixel perfect</a><br /></string>
     <string name="author_alfredo_hernandez"><a href="https://www.flaticon.com/authors/alfredo-hernandez">Alfredo Hernandez</a></string>
 </resources>

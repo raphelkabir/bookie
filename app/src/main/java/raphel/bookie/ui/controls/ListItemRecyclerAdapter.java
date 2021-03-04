@@ -3,53 +3,85 @@ package raphel.bookie.ui.controls;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.AsyncListDiffer;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.List;
 
 import raphel.bookie.data.room.Deadline;
-import raphel.bookie.data.room.ReadingSession;
 import raphel.bookie.databinding.ItemDeadlineBinding;
 
 public class ListItemRecyclerAdapter extends RecyclerView.Adapter<ListItemRecyclerAdapter.ViewHolder> {
 
-    private ReadingSession data;
+    private Deadline longPressedDeadline;
+
+    private final AsyncListDiffer<Deadline> listDiffer = new AsyncListDiffer(this, new DiffUtil.ItemCallback<Deadline>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Deadline oldItem, @NonNull Deadline newItem) {
+            return oldItem.areItemsTheSame(newItem);
+        }
+        @Override
+        public boolean areContentsTheSame(@NonNull Deadline oldItem, @NonNull Deadline newItem) {
+            return oldItem.equals(newItem);
+        }
+    });
+
     private ItemListener itemListener;
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemDeadlineBinding binding = ItemDeadlineBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new ListItemRecyclerAdapter.ViewHolder(binding);
+        ViewHolder holder = new ListItemRecyclerAdapter.ViewHolder(binding);
+        if (itemListener != null) {
+            itemListener.itemCreated(holder.itemView);
+        }
+
+        holder.itemView.setOnLongClickListener(v -> {
+            longPressedDeadline = listDiffer.getCurrentList().get(holder.getAdapterPosition());
+            return false;
+        });
+
+        return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Deadline deadline = data.deadlines.get(position);
-        String date = String.valueOf(deadline.date.day)
-                + "/" + String.valueOf(deadline.date.month)
-                + "/" + String.valueOf(deadline.date.year);
+        Deadline deadline = listDiffer.getCurrentList().get(position);
 
-        String content = "TO PAGE: " + deadline.pageToReach + "  |  BY: " + date;
+        holder.binding.itmDeadlineName.setText(deadline.name);
+        LocalDate date = LocalDate.of(deadline.date.year, deadline.date.month, deadline.date.day);
+        String formattedDate = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG));
+
+        String content = deadline.pageToReach + " | "  + formattedDate;
         holder.binding.itmDeadlineTxt.setText(content);
-        holder.binding.itmDeadlineBtnDelete.setOnClickListener((View) -> {
+        holder.binding.itmDeadlineSwitch.setChecked(deadline.isActive);
+        holder.binding.itmDeadlineSwitch.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+            deadline.isActive = isChecked;
             if (itemListener != null) {
-                itemListener.delete(data, deadline);
-                this.notifyItemRemoved(holder.getAdapterPosition());
+                itemListener.itemSwitchChanged(deadline);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return data != null && data.deadlines != null ? data.deadlines.size() : 0;
+        return listDiffer.getCurrentList().size();
     }
 
-    public void setData(ReadingSession data) {
-        this.data = data;
-        notifyDataSetChanged();
+    public Deadline getLongPressedDeadline() {
+        return longPressedDeadline;
+    }
+
+    public void submitData(List<Deadline> data) {
+        listDiffer.submitList(data);
     }
 
     public void setItemListener(ItemListener itemListener) {
@@ -58,7 +90,7 @@ public class ListItemRecyclerAdapter extends RecyclerView.Adapter<ListItemRecycl
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private ItemDeadlineBinding binding;
+        public final ItemDeadlineBinding binding;
 
         public ViewHolder(@NonNull ItemDeadlineBinding binding) {
             super(binding.getRoot());
@@ -67,6 +99,7 @@ public class ListItemRecyclerAdapter extends RecyclerView.Adapter<ListItemRecycl
     }
 
     public interface ItemListener {
-        void delete(ReadingSession session, Deadline deadline);
+        void itemCreated(View view);
+        void itemSwitchChanged(Deadline deadline);
     }
 }

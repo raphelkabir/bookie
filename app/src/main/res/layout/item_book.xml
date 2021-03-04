@@ -11,7 +11,7 @@
     android:background="@drawable/line_at_bottom">
 
     <ImageView
-        android:id="@+id/item_book_icon"
+        android:id="@+id/itmbk__icon"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginStart="16dp"
@@ -36,48 +36,49 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/list_itm_first_pargph"
+        android:id="@+id/list_item_first_paragraph"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:fontFamily="@font/rubik"
         android:text="TextView"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/list_itm_prfx_first_pargph"
-        app:layout_constraintStart_toEndOf="@+id/list_itm_prfx_first_pargph"
-        app:layout_constraintTop_toTopOf="@+id/list_itm_prfx_first_pargph" />
+        app:layout_constraintBottom_toBottomOf="@+id/itmbk_prfx_first_pargph"
+        app:layout_constraintStart_toEndOf="@+id/itmbk_prfx_first_pargph"
+        app:layout_constraintTop_toTopOf="@+id/itmbk_prfx_first_pargph" />
 
     <TextView
-        android:id="@+id/list_itm_second_pargph"
+        android:id="@+id/list_item_second_paragraph"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="TextView"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/list_itm_prfx_second_pargph"
-        app:layout_constraintStart_toEndOf="@+id/list_itm_prfx_second_pargph"
-        app:layout_constraintTop_toTopOf="@+id/list_itm_prfx_second_pargph" />
+        app:layout_constraintBottom_toBottomOf="@+id/itmbk_prfx_second_pargph"
+        app:layout_constraintStart_toEndOf="@+id/itmbk_prfx_second_pargph"
+        app:layout_constraintTop_toTopOf="@+id/itmbk_prfx_second_pargph" />
 
     <TextView
-        android:id="@+id/list_itm_prfx_first_pargph"
+        android:id="@+id/itmbk_prfx_first_pargph"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:text="LENGTH:"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/item_book_icon"
-        app:layout_constraintEnd_toEndOf="@+id/list_itm_prfx_second_pargph"
-        app:layout_constraintTop_toTopOf="@+id/item_book_icon" />
+        app:layout_constraintBottom_toBottomOf="@+id/itmbk__icon"
+        app:layout_constraintEnd_toEndOf="@+id/itmbk_prfx_second_pargph"
+        app:layout_constraintTop_toTopOf="@+id/itmbk__icon" />
 
     <TextView
-        android:id="@+id/list_itm_prfx_second_pargph"
+        android:id="@+id/itmbk_prfx_second_pargph"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="32dp"
         android:text="READEN PAGES:"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/item_book_icon"
-        app:layout_constraintStart_toEndOf="@+id/item_book_icon"
-        app:layout_constraintTop_toTopOf="@+id/item_book_icon" />
+        app:layout_constraintBottom_toBottomOf="@+id/itmbk__icon"
+        app:layout_constraintStart_toEndOf="@+id/itmbk__icon"
+        app:layout_constraintTop_toTopOf="@+id/itmbk__icon" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

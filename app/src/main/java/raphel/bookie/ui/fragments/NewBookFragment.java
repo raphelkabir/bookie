@@ -15,13 +15,13 @@ import android.view.inputmethod.InputMethodManager;
 
 import raphel.bookie.data.room.Book;
 import raphel.bookie.databinding.FragmentNewBookBinding;
-import raphel.bookie.ui.viewmodel.MainViewModel;
+import raphel.bookie.ui.viewmodel.SharedViewModel;
 import raphel.bookie.R;
 
 public class NewBookFragment extends Fragment implements View.OnClickListener {
 
     private FragmentNewBookBinding binding;
-    private MainViewModel viewModel;
+    private SharedViewModel viewModel;
 
     public static NewBookFragment newInstance(String param1, String param2) {
         return new NewBookFragment();
@@ -30,13 +30,13 @@ public class NewBookFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel =  new ViewModelProvider(this).get(MainViewModel.class);
+        viewModel =  new ViewModelProvider(this).get(SharedViewModel.class);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentNewBookBinding.inflate(inflater, container, false);
+        binding = FragmentNewBookBinding.inflate(inflater);
         binding.newBookBtnAdd.setOnClickListener(this);
         return binding.getRoot();
     }

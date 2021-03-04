@@ -1,5 +1,6 @@
 package raphel.bookie.data.room;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -21,13 +22,10 @@ public interface BookDao {
     @Delete
     void delete(Book book);
 
-    @Query("SELECT * FROM table_book WHERE id=(SELECT max(id) FROM table_book);")
-    Book getLast();
-
     @Query("SELECT * FROM table_book")
-    List<Book> getAll();
+    LiveData<List<Book>> getAll();
 
     @Transaction
     @Query("SELECT * FROM table_book")
-    List<ReadingSession> getReadingSessions();
+    abstract LiveData<List<ReadingSession>> getReadingSessions();
 }

@@ -22,12 +22,12 @@ import raphel.bookie.data.room.ReadingSession;
 import raphel.bookie.databinding.FragmentTodayBinding;
 import raphel.bookie.databinding.PopupCompleteTargetBinding;
 import raphel.bookie.ui.controls.TodayRecyclerAdapter;
-import raphel.bookie.ui.viewmodel.MainViewModel;
+import raphel.bookie.ui.viewmodel.SharedViewModel;
 
 public class TodayFragment extends Fragment implements TodayRecyclerAdapter.ItemListener {
 
     private FragmentTodayBinding binding;
-    private MainViewModel viewModel;
+    private SharedViewModel viewModel;
     private TodayRecyclerAdapter recyclerAdapter;
 
     public static TodayFragment newInstance(String param1, String param2) {
@@ -37,24 +37,21 @@ public class TodayFragment extends Fragment implements TodayRecyclerAdapter.Item
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel =  new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        recyclerAdapter = new TodayRecyclerAdapter();
+        viewModel =  new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         viewModel.getSessions().observe(requireActivity(), sessions -> {
-            if (recyclerAdapter != null) recyclerAdapter.setData(filter(sessions));
+            recyclerAdapter.submitData(filter(sessions));
         });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentTodayBinding.inflate(inflater, container, false);
-
+        binding = FragmentTodayBinding.inflate(inflater);
         LinearLayoutManager layout = new LinearLayoutManager(getContext());
         layout.setOrientation(LinearLayoutManager.VERTICAL);
         binding.todayRecyclerView.setLayoutManager(layout);
-        recyclerAdapter = new TodayRecyclerAdapter();
         recyclerAdapter.setItemListener(this);
-        recyclerAdapter.setData(filter(viewModel.getSessions().getValue()));
         binding.todayRecyclerView.setAdapter(recyclerAdapter);
-
         return binding.getRoot();
     }
 
@@ -74,9 +71,9 @@ public class TodayFragment extends Fragment implements TodayRecyclerAdapter.Item
                     if (page <= 0 || page > holder.getData().book.length) return;
 
                     holder.getData().dailyTarget.pageReached = page;
-                    viewModel.updateDailyTarget(holder.getData());
+                    viewModel.updateDailyTarget(holder.getData().dailyTarget);
                     popupWindow.dismiss();
-                    holder.getBinding().itmTargetIcon.setImageResource(R.drawable.ic_check);
+                    holder.binding.itmTargetIcon.setImageResource(R.drawable.ic_check);
                 });
 
                 popupWindow.setElevation(20);
@@ -86,7 +83,7 @@ public class TodayFragment extends Fragment implements TodayRecyclerAdapter.Item
         }
         else {
             holder.getData().dailyTarget.pageReached = 0;
-            viewModel.updateDailyTarget(holder.getData());
+            viewModel.updateDailyTarget(holder.getData().dailyTarget);
             holder.updateVisual();
         }
     }

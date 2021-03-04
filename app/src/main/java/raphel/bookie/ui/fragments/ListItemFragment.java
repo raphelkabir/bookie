@@ -2,13 +2,18 @@ package raphel.bookie.ui.fragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,13 +22,17 @@ import raphel.bookie.data.room.Deadline;
 import raphel.bookie.data.room.ReadingSession;
 import raphel.bookie.databinding.FragmentListItemBinding;
 import raphel.bookie.ui.controls.ListItemRecyclerAdapter;
-import raphel.bookie.ui.viewmodel.MainViewModel;
+import raphel.bookie.ui.viewmodel.SharedViewModel;
 
 public class ListItemFragment extends Fragment implements ListItemRecyclerAdapter.ItemListener {
 
+    private HostNavigation hostNavigation;
+
     private FragmentListItemBinding binding;
     private ListItemRecyclerAdapter recyclerAdapter;
-    private MainViewModel viewModel;
+    private SharedViewModel viewModel;
+
+    public String title;
 
     public static ListItemFragment newInstance(String param1, String param2) {
         return new ListItemFragment();
@@ -32,47 +41,94 @@ public class ListItemFragment extends Fragment implements ListItemRecyclerAdapte
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel =  new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-        viewModel.getSelectedSession().observe(requireActivity(), session -> {
-            if (recyclerAdapter != null) recyclerAdapter.setData(session);
-        });
+        binding = FragmentListItemBinding.inflate(getLayoutInflater());
+
+        recyclerAdapter = new ListItemRecyclerAdapter();
+        recyclerAdapter.setItemListener(this);
+
+        viewModel =  new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getSessions().observe(requireActivity(), sessions -> updateDataUI());
+        viewModel.getSelectedIndex().observe(requireActivity(), index -> updateDataUI());
+
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        binding = FragmentListItemBinding.inflate(inflater, container, false);
-
-        ReadingSession session = viewModel.getSelectedSession().getValue();
-
-        binding.listItmDelete.setOnClickListener((View) -> {
-            viewModel.deleteReadingSession(session);
-            Navigation.findNavController(getView()).navigate(R.id.action_listItemFragment_to_hostFragment);
-        });
-
-        binding.listItmTxtTitle.setText(session.book.title);
-        if (session.book.userPosition == 0) binding.listItmIcon.setImageResource(R.drawable.ic_book);
-        binding.listItmFirstPargph.setText(String.valueOf(session.book.length));
-        binding.listItmSecondPargph.setText(String.valueOf(session.book.userPosition));
-
-        binding.listItmBtnAdd.setOnClickListener((View) -> {
-            Navigation.findNavController(getView()).navigate(R.id.newDeadlineFragment);
-        });
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         LinearLayoutManager layout = new LinearLayoutManager(getContext());
         layout.setOrientation(LinearLayoutManager.VERTICAL);
         binding.listItmRecyclerView.setLayoutManager(layout);
-        recyclerAdapter = new ListItemRecyclerAdapter();
-        recyclerAdapter.setItemListener(this);
-        recyclerAdapter.setData(viewModel.getSelectedSession().getValue());
         binding.listItmRecyclerView.setAdapter(recyclerAdapter);
+
+        binding.listItmDelete.setOnClickListener((View) -> {
+            binding.listItmContentLayout.setVisibility(View.INVISIBLE);
+            binding.listItmStandbyText.setVisibility(View.VISIBLE);
+
+            viewModel.deleteReadingSession(viewModel.getSelected());
+            if (hostNavigation != null) hostNavigation.navigateTo(1);
+        });
+
+        binding.listItmBtnAdd.setOnClickListener((View)
+                -> Navigation.findNavController(getView()).navigate(R.id.newDeadlineFragment));
 
         return binding.getRoot();
     }
 
     @Override
-    public void delete(ReadingSession session, Deadline deadline) {
-        viewModel.deleteDeadline(session, deadline);
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(0, R.id.menu_delete, 0, "Delete");
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_delete:
+                Deadline deadline = recyclerAdapter.getLongPressedDeadline();
+                viewModel.deleteDeadline(viewModel.getSelected(), deadline);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void itemCreated(View view) {
+        registerForContextMenu(view);
+    }
+
+    @Override
+    public void itemSwitchChanged(Deadline deadline) {
+        viewModel.updateDeadline(viewModel.getSelected(), deadline);
+    }
+
+    public void setHostNavigation(HostNavigation hostNavigation) {
+        this.hostNavigation = hostNavigation;
+    }
+
+    public void showData(boolean show) {
+        if (show) {
+            binding.listItmContentLayout.setVisibility(View.VISIBLE);
+            binding.listItmStandbyText.setVisibility(View.INVISIBLE);
+        }
+        else {
+            binding.listItmContentLayout.setVisibility(View.INVISIBLE);
+            binding.listItmStandbyText.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void updateDataUI() {
+        ReadingSession session = viewModel.getSelected();
+        if (session == null) {
+            showData(false);
+            return;
+        }
+
+        binding.listItmTxtTitle.setText(session.book.title);
+        binding.listItemFirstParagraph.setText(String.valueOf(session.book.length));
+        binding.listItemSecondParagraph.setText(String.valueOf(session.book.userPosition));
+        recyclerAdapter.submitData(session.deadlines);
+        showData(true);
     }
 }

@@ -2,5 +2,4 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/menu_today" android:title="TODAY" android:icon="@drawable/ic_clipboard_outline"/>
     <item android:id="@+id/menu_books" android:title="BOOKS" android:icon="@drawable/ic_books_outline"/>
-    <item android:id="@+id/menu_info" android:title="INFO" android:icon="@drawable/ic_info_outline"/>
-</menu>
+ </menu>

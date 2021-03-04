@@ -8,6 +8,8 @@ import android.widget.Switch;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.AsyncListDiffer;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -21,7 +23,16 @@ import raphel.bookie.databinding.ItemTargetBinding;
 
 public class TodayRecyclerAdapter extends RecyclerView.Adapter<TodayRecyclerAdapter.ViewHolder> {
 
-    private List<ReadingSession> data;
+    private final AsyncListDiffer<ReadingSession> listDiffer = new AsyncListDiffer(this, new DiffUtil.ItemCallback<ReadingSession>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull ReadingSession oldItem, @NonNull ReadingSession newItem) {
+            return oldItem.areItemsTheSame(newItem);
+        }
+        @Override
+        public boolean areContentsTheSame(@NonNull ReadingSession oldItem, @NonNull ReadingSession newItem) {
+            return oldItem.equals(newItem);
+        }
+    });
     private ItemListener itemListener;
 
     @NonNull
@@ -33,7 +44,7 @@ public class TodayRecyclerAdapter extends RecyclerView.Adapter<TodayRecyclerAdap
 
     @Override
     public void onBindViewHolder(@NonNull TodayRecyclerAdapter.ViewHolder holder, int position) {
-        ReadingSession session = data.get(position);
+        ReadingSession session = listDiffer.getCurrentList().get(position);
 
         holder.binding.itmTargetTitle.setText(session.book.title);
         holder.setData(session);
@@ -48,21 +59,20 @@ public class TodayRecyclerAdapter extends RecyclerView.Adapter<TodayRecyclerAdap
 
     @Override
     public int getItemCount() {
-        return data == null ? 0 : data.size();
+        return listDiffer.getCurrentList().size();
     }
 
     public void setItemListener(ItemListener itemListener) {
         this.itemListener = itemListener;
     }
 
-    public void setData(List<ReadingSession> data) {
-        this.data = data;
-        notifyDataSetChanged();
+    public void submitData(List<ReadingSession> data) {
+        listDiffer.submitList(data);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private final ItemTargetBinding binding;
+        public final ItemTargetBinding binding;
         private ReadingSession data;
 
         public ViewHolder(@NonNull ItemTargetBinding binding) {
@@ -70,13 +80,10 @@ public class TodayRecyclerAdapter extends RecyclerView.Adapter<TodayRecyclerAdap
             this.binding = binding;
         }
 
-        public ItemTargetBinding getBinding() {
-            return binding;
-        }
-
         public void setData(ReadingSession data) {
             this.data = data;
         }
+
         public ReadingSession getData() {
             return data;
         }
@@ -84,7 +91,7 @@ public class TodayRecyclerAdapter extends RecyclerView.Adapter<TodayRecyclerAdap
         public void updateVisual() {
             binding.itmTargetSwitch.setChecked(data.dailyTarget.pageReached > 0);
             if (data.dailyTarget.pageReached > 0) binding.itmTargetIcon.setImageResource(R.drawable.ic_check);
-            else binding.itmTargetIcon.setImageResource(R.drawable.ic_circumference);
+            else binding.itmTargetIcon.setImageResource(R.drawable.ic_dot);
         }
     }
 

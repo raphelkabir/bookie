@@ -4,17 +4,30 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.AsyncListDiffer;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 import raphel.bookie.R;
+import raphel.bookie.data.room.Book;
+import raphel.bookie.data.room.Deadline;
 import raphel.bookie.data.room.ReadingSession;
 import raphel.bookie.databinding.ItemBookBinding;
 
 public class ListRecyclerAdapter extends RecyclerView.Adapter<ListRecyclerAdapter.ViewHolder> {
 
-    private List<ReadingSession> data;
+    private final AsyncListDiffer<ReadingSession> listDiffer = new AsyncListDiffer(this, new DiffUtil.ItemCallback<ReadingSession>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull ReadingSession oldItem, @NonNull ReadingSession newItem) {
+            return oldItem.areItemsTheSame(newItem);
+        }
+        @Override
+        public boolean areContentsTheSame(@NonNull ReadingSession oldItem, @NonNull ReadingSession newItem) {
+            return oldItem.equals(newItem);
+        }
+    });
     private ItemListener itemListener;
 
     @NonNull
@@ -26,26 +39,24 @@ public class ListRecyclerAdapter extends RecyclerView.Adapter<ListRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ListRecyclerAdapter.ViewHolder holder, int position) {
-        ReadingSession session = data.get(position);
+        ReadingSession session = listDiffer.getCurrentList().get(position);
+
         holder.binding.itmbkTitle.setText(session.book.title);
-        if (session.book.userPosition == 0
-                || session.book.userPosition == session.book.length) holder.binding.itemBookIcon.setImageResource(R.drawable.ic_book);
-        holder.binding.listItmFirstPargph.setText(String.valueOf(session.book.length));
-        holder.binding.listItmSecondPargph.setText(String.valueOf(session.book.userPosition));
+        holder.binding.listItemFirstParagraph.setText(String.valueOf(session.book.length));
+        holder.binding.listItemSecondParagraph.setText(String.valueOf(session.book.userPosition));
 
         holder.itemView.setOnClickListener((View) -> {
-            if (itemListener != null) itemListener.itemClicked(session);
-        });
+            if (itemListener != null) itemListener.itemClicked(holder.getAdapterPosition());
+        });;
     }
 
     @Override
     public int getItemCount() {
-        return data == null ? 0 : data.size();
+        return listDiffer.getCurrentList().size();
     }
 
-    public void setData(List<ReadingSession> data) {
-        this.data = data;
-        this.notifyDataSetChanged();
+    public void submitData(List<ReadingSession> data) {
+        listDiffer.submitList(data);
     }
 
     public void setItemListener(ItemListener itemListener) {
@@ -54,7 +65,7 @@ public class ListRecyclerAdapter extends RecyclerView.Adapter<ListRecyclerAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private ItemBookBinding binding;
+        public final ItemBookBinding binding;
 
         public ViewHolder(@NonNull ItemBookBinding binding) {
             super(binding.getRoot());
@@ -63,6 +74,6 @@ public class ListRecyclerAdapter extends RecyclerView.Adapter<ListRecyclerAdapte
     }
 
     public interface ItemListener {
-        void itemClicked(ReadingSession session);
+        void itemClicked(int position);
     }
 }

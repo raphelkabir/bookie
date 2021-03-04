@@ -1,5 +1,6 @@
 package raphel.bookie.data.room;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -20,9 +21,6 @@ public interface DailyTargetDao {
     @Delete
     void delete(DailyTarget dailyTarget);
 
-    @Query("SELECT * FROM table_daily_target WHERE id=(SELECT max(id) FROM table_daily_target);")
-    DailyTarget getLast();
-
     @Query("SELECT * FROM table_daily_target")
-    List<DailyTarget> getAll();
+    LiveData<List<DailyTarget>> getAll();
 }
